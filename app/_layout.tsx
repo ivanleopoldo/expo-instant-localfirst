@@ -1,18 +1,29 @@
 import '@/global.css';
 
-import { Stack } from 'expo-router';
+import { ClerkLoaded, ClerkProvider } from '@clerk/clerk-expo';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Slot } from 'expo-router';
+import { tokenCache } from '@/cache';
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+
+if (!publishableKey) {
+  console.error('Please add a key');
+}
+
 export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      <Stack.Screen name="(note)" options={{ headerShown: false }} />
-    </Stack>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <ClerkLoaded>
+        <SafeAreaProvider>
+          <Slot />
+        </SafeAreaProvider>
+      </ClerkLoaded>
+    </ClerkProvider>
   );
 }
